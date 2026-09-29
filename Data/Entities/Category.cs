@@ -12,6 +12,6 @@ namespace HouseRentingSystem.Data.Entities
         [MaxLength(NameMaxLength)]
         public required string Name { get; set; }
 
-        //public List<House> Houses { get; set; } = new List<House>();
+        public List<House> Houses { get; set; } = new List<House>();
     }
 }
