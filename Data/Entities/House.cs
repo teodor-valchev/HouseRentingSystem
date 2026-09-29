@@ -27,20 +27,19 @@ namespace HouseRentingSystem.Data.Entities
         public required string ImageUrl { get; set; }
 
         [Required]
-        [Range(0, DataConstants.PricePerMonthMaxNumber)]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal PricePerMonth { get; set; }
 
+        [ForeignKey(nameof(CategoryId))]
         public Category? Category { get; set; }
 
-        [Required]
-        [ForeignKey(nameof(CategoryId))]
         public int CategoryId { get; set; }
 
-        public string RenterId { get; set; }
-
-        public Agent Agent { get; set; }
+        public string? RenterId { get; set; }
 
         [ForeignKey(nameof(AgentId))]
+        public Agent? Agent { get; set; }
+
         public int AgentId { get; set; }
     }
 }
