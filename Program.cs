@@ -1,6 +1,7 @@
 using HouseRentingSystem.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +16,13 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder
     .Services.AddDefaultIdentity<IdentityUser>(options =>
-        options.SignIn.RequireConfirmedAccount = false
-    )
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+    })
     .AddEntityFrameworkStores<HouseRentingDbContext>();
 builder.Services.AddControllersWithViews();
 
