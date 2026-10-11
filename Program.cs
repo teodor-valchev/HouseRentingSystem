@@ -26,7 +26,9 @@ builder
     .AddEntityFrameworkStores<HouseRentingDbContext>();
 
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddTransient<IHouseService, HouseService>();
+builder.Services.AddTransient<IAgentService, AgentService>();
 
 var app = builder.Build();
 
