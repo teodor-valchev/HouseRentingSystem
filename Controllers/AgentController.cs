@@ -16,6 +16,7 @@ namespace HouseRentingSystem.Controllers
         }
 
         [Authorize]
+        [HttpGet]
         public IActionResult Become()
         {
             var userId = ClaimsPrincipalExtensions.Id(User);
@@ -31,6 +32,29 @@ namespace HouseRentingSystem.Controllers
         [HttpPost]
         public IActionResult Become(BecomeAgentFormModel model)
         {
+            var userId = ClaimsPrincipalExtensions.Id(User);
+
+            if (agentService.AgentExists(userId))
+            {
+                return BadRequest();
+            }
+
+            if (agentService.UserWithPhoneNumberExists(nameof(model.PhoneNumber)))
+            {
+                ModelState.AddModelError(nameof(model.PhoneNumber), "Phone number already exists");
+            }
+
+            if (agentService.UserHasRents(userId))
+            {
+                ModelState.AddModelError("Error", "You should have no rents to become agent!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            agentService.Create(userId, model.PhoneNumber);
+
             return RedirectToAction(nameof(HousesController.All), "Houses");
         }
     }
