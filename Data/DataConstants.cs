@@ -18,5 +18,12 @@
         public const int PhoneNumberMinLength = 7;
 
         public const int PhoneNumberMaxLength = 15;
+
+        public const int TitleMaxLength = 50;
+        public const int TitleMinLength = 10;
+
+        public const decimal PriceMinValue = 0.00m;
+
+        public const decimal PriceMaxValue = 2000.00m;
     }
 }

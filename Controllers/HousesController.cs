@@ -1,4 +1,6 @@
-﻿using HouseRentingSystem.Models.Houses;
+﻿using HouseRentingSystem.Infrastructure;
+using HouseRentingSystem.Models.Houses;
+using HouseRentingSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +8,16 @@ namespace HouseRentingSystem.Controllers
 {
     public class HousesController : Controller
     {
+        private readonly IHouseService houseService;
+        private readonly IAgentService agentService;
+
+        public HousesController(IHouseService _houseService, IAgentService _agentService)
+        {
+            this.houseService = _houseService;
+            this.agentService = _agentService;
+        }
+
+        [HttpGet]
         public IActionResult All()
         {
             return View(new AllHousesQueryModel());
@@ -24,16 +36,54 @@ namespace HouseRentingSystem.Controllers
         }
 
         [Authorize]
-        public IActionResult Add()
+        [HttpGet]
+        public async Task<IActionResult> Add()
         {
-            return View();
+            if (!agentService.AgentExists(User.Id()))
+            {
+                return RedirectToAction(nameof(AgentController.Become), "Agents");
+            }
+            var categories = await houseService.AllCategories();
+
+            var model = new HouseFormModel() { Categories = categories };
+
+            return View(model);
         }
 
         [Authorize]
         [HttpPost]
-        public IActionResult Add(HouseFormModel model)
+        public async Task<IActionResult> Add(HouseFormModel model)
         {
-            return RedirectToAction(nameof(Details), new { id = 1 });
+            if (!agentService.AgentExists(User.Id()))
+            {
+                return RedirectToAction(nameof(AgentController.Become), "Agents");
+            }
+
+            if (!houseService.CategoryExists(model.CategoryId))
+            {
+                ModelState.AddModelError(nameof(model.CategoryId), "Category does not exist.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var categories = await houseService.AllCategories();
+
+                return View(new HouseFormModel() { Categories = categories });
+            }
+
+            var agentId = agentService.getAgentId(User.Id());
+
+            var newHouseId = await houseService.Create(
+                model.Title,
+                model.Address,
+                model.Description,
+                model.ImageUrl,
+                model.PricePerMonth,
+                model.CategoryId,
+                agentId: 1
+            );
+
+            return RedirectToAction(nameof(Details), new { id = newHouseId });
         }
 
         [Authorize]
